@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="template">
+<head>
+<!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<!-- Bootstrap CSS -->
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+
+<title>Votre Banque</title>
+</head>
+<body>
+	<div layout:fragment="contents">
+		<div class="row mt-2 ml-1 mr-1">
+			<div class="col-6">
+				<div class="card  border-success">
+					<div class="card-header badge badge-info text-wrap">
+						<h6>Consultation d'un compte</h6>
+					</div>
+					<div class="card-body">
+							     <form th:action="@{/consulterCompte}" method="get">
+		      <div>
+		        <label>code compte</label>
+		        <input type="text" name="codeCompte" th:value="${codeCompte}"/>
+		        <button class="btn btn-primary" type="submit">OK</button>
+		      
+		      </div>
+		    
+		    </form>
+		    <div class="text-danger" th:if="${exception}" th:text="${exception.message}"></div>
+					</div>
+				</div>
+			</div>
+			<div class="col-6">
+				<div class="card  border-danger" th:if="${compte}">
+					<div class="card-header badge badge-danger text-wrap">
+						<h6>Opération sur le compte</h6>
+					</div>
+					<div class="card-body">
+							   <form th:action="@{/saveOperation}" method="post">
+		   <div>
+		   <label>Compte:</label>
+		   <input type="hidden" name="codeCompte" th:value="${codeCompte}"/>
+		    <label th:text="${codeCompte}"></label>
+		   
+		   </div>
+		   <div>
+		   <input type="radio" name="typeOperation" value="VERS" checked="checked"
+		   onchange="document.getElementById('forVirement').style.display='none'"/>
+		   <label>Versement</label>
+		    <input type="radio" name="typeOperation" value="RETR"
+		     onchange="document.getElementById('forVirement').style.display='none'"/>
+		   <label>Retrait</label>
+		   <input type="radio" name="typeOperation" value="VIR"
+		    onchange="document.getElementById('forVirement').style.display='block'"/>
+		   <label>Virement</label>
+		   </div>
+		   <div id="forVirement" style="display:none">
+		   <label>Vers:</label>
+		    <input type="text" name="codeCompte2"/>
+		   </div>
+		   <div>
+		   <label>Montant:</label>
+		    <input type="text" name="montant"/>
+		   </div>
+		   <div class="text-danger"  
+		   th:text="${#httpServletRequest.getParameter('error')}"></div>
+		   <button type="submit" class="btn btn-primary">Save</button>
+		   </form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row mt-2 ml-1 mr-1">
+			<div class="col-6">
+				<div class="card  border-info" th:if="${compte}">
+					<div class="card-header badge badge-info text-wrap">
+						<h6>Information sur le compte</h6>
+					</div>
+					<div class="card-body">
+							      <div>
+		        <label>client:</label>
+		        <label th:text="${compte.client.nom}"></label>
+		      
+		      </div>
+		       <div>
+		        <label>code compte:</label>
+		        <label th:text="${compte.codeCompte}"></label>
+		      
+		      </div>
+		       <div>
+		        <label>solde:</label>
+		        <label th:text="${compte.solde}"></label>
+		      
+		      </div>
+		        <div>
+		        <label>date création:</label>
+		        <label th:text="${compte.dateCreaction}"></label>
+		      
+		      </div>
+		       <div>
+		        <label>type compte:</label>
+		        <label th:text="${compte.class.simpleName}"></label>
+		      
+		      </div>
+		      	<div th:if="${compte.class.simpleName=='CompteCourant'}">
+		        <label>découvert:</label>
+		        <label th:text="${compte.decouvert}"></label>
+		      
+		      </div>
+		      <div th:if="${compte.class.simpleName=='CompteEpargne'}">
+		        <label>taux:</label>
+		        <label th:text="${compte.taux}"></label>
+		      
+		      </div>
+					</div>
+				</div>
+			</div>
+			<div class="col-6">
+				<div class="card border border-info" th:if="${compte}">
+					<div class="card-header badge badge-info text-wrap">
+						<h6>Liste des opérations</h6>
+					</div>
+					<div class="card-body">
+							     <table class="table table-striped">
+		      <tr>
+		       <th>Num</th><th>Type</th><th>Date</th><th>Montant</th>
+		      </tr>
+		    <tr th:each="o:${listOperations}">
+		     <td th:text="${o.numeriOperation}"></td>
+		      <td th:text="${o.class.simpleName}"></td>
+		       <td th:text="${o.dateOperation}"></td>
+		        <td th:text="${o.montant}"></td>
+		    </tr>
+		    </table>
+		    <div class="container">
+		    <ul class="nav nav-pills">
+		    <li th:each="p,status : ${pages}">
+		    <a th:href="@{consulterCompte(codeCompte=${codeCompte},page=${status.index})}" 
+		      th:text="${status.index}"></a>
+		    </li>
+		    </ul>
+		    </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+		
+	
+
+	<!-- Optional JavaScript -->
+	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+		></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+		></script>
+	<script
+		src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+		></script>
+</body>
+</html>
